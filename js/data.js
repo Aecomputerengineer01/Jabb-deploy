@@ -140,14 +140,14 @@ const TABLES_CONFIG = [
   { id: 'B-6', number: 'B-6', zone: 'BAR', x: 8.5, z: 12.8, shape: 'stool', seats: 1, label: 'บาร์ B-6' }
 ];
 
-// 18 Staff / AI Agents Default Profiles
+// 18 Staff / AI Agents Default Profiles (จากที่คุณได้แก้ไขในระบบ)
 const DEFAULT_STAFF_PROFILES = [
   // --- บาร์น้ำ (2 คน - สีฟ้า Cyan #06b6d4) ---
   {
     id: 'JB-BAR-01',
     key: 'bar_1',
-    name: 'บาริสต้า เจ',
-    nickname: 'เจ (Jay)',
+    name: 'บาร์น้ำ เอ',
+    nickname: 'เอ (Ae)',
     role: 'บาร์น้ำ',
     title: 'หัวหน้าบาร์เทนเดอร์',
     dept: 'bar',
@@ -165,8 +165,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-BAR-02',
     key: 'bar_2',
-    name: 'มิกโซโลจิสต์ นิว',
-    nickname: 'นิว (New)',
+    name: 'บาร์น้ำ บีมหัวแดง',
+    nickname: 'บีม (หัวแดง)',
     role: 'บาร์น้ำ',
     title: 'บาร์เทนเดอร์ชำนาญการ',
     dept: 'bar',
@@ -186,8 +186,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-SRV-01',
     key: 'srv_1',
-    name: 'เสิร์ฟ กาย',
-    nickname: 'กาย (Guy)',
+    name: 'เสิร์ฟ เจมส์',
+    nickname: 'เจมส์ (Guy)',
     role: 'พนักงานเสิร์ฟ',
     title: 'พนักงานเสิร์ฟ โซน VIP',
     dept: 'waiter',
@@ -205,8 +205,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-SRV-02',
     key: 'srv_2',
-    name: 'เสิร์ฟ ตอง',
-    nickname: 'ตอง (Tong)',
+    name: 'เสิร์ฟ ปอย',
+    nickname: 'ปอย (Tong)',
     role: 'พนักงานเสิร์ฟ',
     title: 'พนักงานเสิร์ฟ โซน A1',
     dept: 'waiter',
@@ -224,8 +224,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-SRV-03',
     key: 'srv_3',
-    name: 'เสิร์ฟ พีท',
-    nickname: 'พีท (Pete)',
+    name: 'เสิร์ฟ บีท',
+    nickname: 'บีท (Pete)',
     role: 'พนักงานเสิร์ฟ',
     title: 'พนักงานเสิร์ฟ โซน A2',
     dept: 'waiter',
@@ -243,8 +243,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-SRV-04',
     key: 'srv_4',
-    name: 'เสิร์ฟ เมย์',
-    nickname: 'เมย์ (May)',
+    name: 'เสิร์ฟ พี่พลอย',
+    nickname: 'พลอย (May)',
     role: 'พนักงานเสิร์ฟ',
     title: 'พนักงานเสิร์ฟ โซนโซฟา',
     dept: 'waiter',
@@ -262,8 +262,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-SRV-05',
     key: 'srv_5',
-    name: 'เสิร์ฟ บิว',
-    nickname: 'บิว (Bew)',
+    name: 'เสิร์ฟ นิว',
+    nickname: 'นิว (์New)',
     role: 'พนักงานเสิร์ฟ',
     title: 'พนักงานเสิร์ฟ โซน B ซ้าย',
     dept: 'waiter',
@@ -281,8 +281,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-SRV-06',
     key: 'srv_6',
-    name: 'เสิร์ฟ ฝ้าย',
-    nickname: 'ฝ้าย (Fai)',
+    name: 'เสิร์ฟ ครีม',
+    nickname: 'ครีม (Fai)',
     role: 'พนักงานเสิร์ฟ',
     title: 'พนักงานเสิร์ฟ โซน B ขวา',
     dept: 'waiter',
@@ -302,8 +302,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-KIT-01',
     key: 'chef_1',
-    name: 'เชฟใหญ่ ท็อป',
-    nickname: 'ท็อป (Chef Top)',
+    name: 'เชฟใหญ่ โอ๊ค',
+    nickname: 'โอ๊ค (Chef Top)',
     role: 'พนักงานครัว',
     title: 'หัวหน้าพ่อครัว (Executive Chef)',
     dept: 'kitchen',
@@ -322,8 +322,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-KIT-02',
     key: 'chef_2',
-    name: 'ผู้ช่วยเชฟ โอม',
-    nickname: 'โอม (Ohm)',
+    name: 'ผู้ช่วยเชฟ พี่โอ่ง',
+    nickname: 'โิอ่ง (Ohm)',
     role: 'พนักงานครัว',
     title: 'เชฟกระทะร้อน 1 (Hot Wok)',
     dept: 'kitchen',
@@ -404,8 +404,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-ACC-01',
     key: 'acc_1',
-    name: 'นักบัญชี แบงค์',
-    nickname: 'แบงค์ (Bank)',
+    name: 'นักบัญชี มิว',
+    nickname: 'มิว (Bank)',
     role: 'พนักงานบัญชี',
     title: 'หัวหน้าฝ่ายบัญชีและการเงิน',
     dept: 'accountant',
@@ -426,8 +426,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-MGR-01',
     key: 'mgr_1',
-    name: 'ผจก. นัท',
-    nickname: 'นัท (Nut)',
+    name: 'ผจก. บอม',
+    nickname: 'บอม (Nut)',
     role: 'ผู้จัดการ',
     title: 'ผู้จัดการฝ่ายปฏิบัติการหน้าร้าน',
     dept: 'manager',
@@ -445,8 +445,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-MGR-02',
     key: 'mgr_2',
-    name: 'ผจก. แพร',
-    nickname: 'แพร (Prae)',
+    name: 'ผจก. ฟลุ๊ค',
+    nickname: 'ฟลุ๊ค (Prae)',
     role: 'ผู้จัดการ',
     title: 'ผู้จัดการคุณภาพการบริการ & ครัว',
     dept: 'manager',
@@ -466,8 +466,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-CEO-01',
     key: 'ceo_1',
-    name: 'ซีอีโอ วิน',
-    nickname: 'วิน (CEO Win)',
+    name: 'ซีอีโอ โบ๊ท',
+    nickname: 'โบ๊ท (CEO Win)',
     role: 'ผู้บริหาร (CEO)',
     title: 'ประธานกรรมการผู้จัดการ (CEO & Founder)',
     dept: 'executive',
@@ -486,8 +486,8 @@ const DEFAULT_STAFF_PROFILES = [
   {
     id: 'JB-CEO-02',
     key: 'ceo_2',
-    name: 'ผู้บริหาร ฟ้า',
-    nickname: 'ฟ้า (MD Fah)',
+    name: 'ผู้บริหาร พี่เฟิร์น',
+    nickname: 'พี่เฟิร์น (MD Fah)',
     role: 'ผู้บริหาร (CEO)',
     title: 'กรรมการบริหารภาพรวม (Managing Director)',
     dept: 'executive',
