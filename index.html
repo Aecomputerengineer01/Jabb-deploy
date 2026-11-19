@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JAABBAR 3D LIVE OPS • แดชบอร์ดจำลองร้านและ AI Agent เรียลไทม์</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            vip: '#8b5cf6',
+            zoneA: '#f97316',
+            zoneSofa: '#eab308',
+            zoneB: '#22c55e',
+            barCyan: '#06b6d4',
+          },
+          fontFamily: {
+            sans: ['Prompt', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Prompt & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Core 3D Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="h-full flex overflow-hidden text-slate-100 bg-[#0a0d14]">
+
+  <!-- ======================================================================
+       LEFT SIDE (72%): 3D ISOMETRIC VIEWPORT & INTERACTIVE CONTROLS
+       ====================================================================== -->
+  <main class="w-[72%] h-full relative flex flex-col border-r border-slate-800/80 bg-slate-950 overflow-hidden">
+
+    <!-- Top Floating Toolbar -->
+    <header class="absolute top-3 left-3 right-3 z-20 flex flex-col gap-2 pointer-events-none">
+      <div class="flex items-center justify-between gap-2 pointer-events-auto">
+
+        <!-- Camera Switcher Presets -->
+        <div class="flex items-center gap-1.5 p-1 rounded-xl glass-panel shadow-2xl">
+          <button id="cam-overview-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/30 transition flex items-center gap-1.5">
+            <span>🌐</span> ภาพรวมทั้งร้าน
+          </button>
+          <button id="cam-stage-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
+            <span>🎤</span> เวที & โซน VIP
+          </button>
+          <button id="cam-bar-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
+            <span>🍸</span> บาร์น้ำ & บัญชี
+          </button>
+          <button id="cam-kitchen-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5">
+            <span>🍳</span> ครัว & ช่องส่ง
+          </button>
+        </div>
+
+        <!-- Simulation Speed, Name Tags & Rush Mode -->
+        <div class="flex items-center gap-2 p-1 rounded-xl glass-panel shadow-2xl">
+          <!-- Speed Buttons -->
+          <div class="flex items-center bg-slate-900/90 rounded-lg p-0.5 border border-slate-800">
+            <button id="speed-1x-btn" class="px-2.5 py-1 rounded text-xs bg-cyan-500 text-slate-950 font-bold transition">1x</button>
+            <button id="speed-2x-btn" class="px-2.5 py-1 rounded text-xs text-slate-300 hover:text-white transition">2x</button>
+            <button id="speed-pause-btn" class="px-2.5 py-1 rounded text-xs text-slate-300 hover:text-white transition">⏸️</button>
+          </div>
+
+          <!-- Toggle Floating Tags -->
+          <button id="toggle-tags-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1">
+            🏷️ ซ่อนป้ายชื่อ
+          </button>
+
+          <!-- Audio Toggle -->
+          <button id="sound-toggle-btn" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1">
+            🔇 เปิดเสียง
+          </button>
+
+          <!-- Rush Hour Trigger -->
+          <button id="rush-hour-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/40 transition flex items-center gap-1.5">
+            ⚡ เร่งชั่วโมงพีค!
+          </button>
+        </div>
+      </div>
+
+      <!-- Department Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto py-1 pointer-events-auto">
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-cyan-500 text-slate-950 font-semibold border border-cyan-400 shadow transition" data-dept="all">
+          ทั้งหมด (18)
+        </button>
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition" data-dept="bar">
+          🍸 บาร์น้ำ (2)
+        </button>
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition" data-dept="waiter">
+          🤵 พนักงานเสิร์ฟ (6)
+        </button>
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition" data-dept="kitchen">
+          👨‍🍳 ครัวร้อน (5)
+        </button>
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition" data-dept="accountant">
+          💼 การเงิน & POS (1)
+        </button>
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition" data-dept="manager">
+          📋 ผู้จัดการ (2)
+        </button>
+        <button class="dept-filter-pill px-3 py-1 rounded-full text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition" data-dept="executive">
+          👑 ผู้บริหาร CEO (2)
+        </button>
+      </div>
+    </header>
+
+    <!-- 3D Three.js & CSS2D Container -->
+    <div id="scene-container" class="w-full h-full cursor-grab active:cursor-grabbing relative"></div>
+
+    <!-- Bottom Left Interactive Tips Pill -->
+    <div class="absolute bottom-3 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-xl glass-panel text-[11px] text-slate-400 pointer-events-none shadow-lg">
+      <span class="text-cyan-400">💡 คำแนะนำ:</span>
+      <span>คลิกที่ตัวละครเพื่อติดตาม • คลิก ✏️ เพื่อแก้ไขชื่อพนักงาน • คลิกที่โต๊ะเพื่อซูมดูสถานะ • หมุน/ซูมมุมกล้องได้อิสระ</span>
+    </div>
+
+    <!-- Bottom Floating Follow Banner (when tracking a character) -->
+    <div id="follow-banner" class="hidden absolute bottom-3 right-4 z-20 flex items-center gap-3 p-3 rounded-2xl glass-panel border border-cyan-500/40 shadow-2xl animate-bounce-subtle">
+      <div id="follow-avatar" class="w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-cyan-500/20 border border-cyan-400">
+        🍸
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span id="follow-name" class="font-bold text-sm text-white">บาริสต้า เจ</span>
+          <span id="follow-role" class="text-[11px] text-cyan-400 font-medium">บาร์น้ำ • หัวหน้าบาร์เทนเดอร์</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-300 mt-0.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="follow-status">กำลังชง Signature Drink</span>
+          <span class="text-slate-500">•</span>
+          <span id="follow-tasks" class="text-slate-400 font-mono text-[11px]">42 งานเสร็จ</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 pl-2 border-l border-slate-700">
+        <button id="follow-edit-btn" class="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-medium border border-amber-500/40 flex items-center gap-1 transition" title="แก้ไขป้ายชื่อพนักงาน">
+          <span>✏️</span> แก้ไขชื่อ
+        </button>
+        <button id="follow-close-btn" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition" title="เลิกติดตาม">
+          ✕
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======================================================================
+       RIGHT SIDE (28%): LIVE OPERATIONS DASHBOARD & MONITORING SIDEBAR
+       ====================================================================== -->
+  <aside class="w-[28%] h-full flex flex-col glass-panel border-l border-slate-800/80 bg-slate-950/95 z-30 overflow-hidden">
+
+    <!-- Top Header & Live Status -->
+    <div class="p-4 border-b border-slate-800/80 bg-slate-900/40">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></div>
+          <span class="text-[10px] tracking-wider uppercase font-bold text-emerald-400">ระบบจำลองสด • LIVE SIMULATION</span>
+        </div>
+        <div id="live-clock" class="text-xs font-mono font-medium text-slate-300 bg-slate-800/70 px-2 py-0.5 rounded-md border border-slate-700">
+          --:--:-- น.
+        </div>
+      </div>
+
+      <div class="mt-2 flex items-baseline justify-between">
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+            <span class="text-cyan-400">JAABBAR</span> 3D LIVE OPS
+          </h1>
+          <p class="text-[11px] text-slate-400">JAABBAR CONCERT • SEOUL CAFÉ & SPACE</p>
+        </div>
+      </div>
+
+      <!-- Quick KPI Counters Grid -->
+      <div class="grid grid-cols-2 gap-2 mt-3.5">
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div class="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>🪑 โต๊ะมีลูกค้า</span>
+            <span class="text-purple-400 font-mono text-[9px]">80%</span>
+          </div>
+          <div id="kpi-occupied" class="text-base font-bold text-white font-mono mt-0.5">43 / 54</div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div class="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>🍽️ เสิร์ฟสำเร็จ</span>
+            <span class="text-emerald-400 font-mono text-[9px]">วันนี้</span>
+          </div>
+          <div id="kpi-served" class="text-base font-bold text-emerald-400 font-mono mt-0.5">142</div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div class="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>💰 ยอดขายเรียลไทม์</span>
+            <span class="text-amber-400 font-mono text-[9px]">THB</span>
+          </div>
+          <div id="kpi-revenue" class="text-base font-bold text-amber-300 font-mono mt-0.5">฿184,500</div>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+          <div class="text-[10px] text-slate-400 flex items-center justify-between">
+            <span>⏳ กำลังปรุง/ชง</span>
+            <span class="text-cyan-400 font-mono text-[9px]">คิวสด</span>
+          </div>
+          <div id="kpi-active" class="text-base font-bold text-cyan-400 font-mono mt-0.5">4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation Bar -->
+    <div class="flex items-center border-b border-slate-800 text-xs font-semibold bg-slate-900/70">
+      <button id="tab-btn-team" class="flex-1 py-2.5 text-center text-cyan-400 border-b-2 border-cyan-400 bg-slate-800/50 transition flex items-center justify-center gap-1.5">
+        <span>👥</span> สถานะทีม AI
+      </button>
+      <button id="tab-btn-log" class="flex-1 py-2.5 text-center text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5">
+        <span>📜</span> กิจกรรมล่าสุด
+      </button>
+      <button id="tab-btn-zone" class="flex-1 py-2.5 text-center text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5">
+        <span>🗺️</span> สรุปโซน & โต๊ะ
+      </button>
+    </div>
+
+    <!-- Tab 1: AI Staff Team (18 Staff) -->
+    <div id="tab-content-team" class="flex-1 flex flex-col min-h-0">
+      <!-- Search & Reset Header -->
+      <div class="p-3 border-b border-slate-800/70 flex items-center gap-2">
+        <div class="relative flex-1">
+          <input id="staff-search-input" type="text" placeholder="ค้นหาชื่อพนักงาน หรือตำแหน่ง..." class="w-full bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-400">
+        </div>
+        <button id="reset-all-names-btn" class="px-2.5 py-1.5 rounded-lg text-xs bg-slate-800 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 border border-slate-700 hover:border-amber-500/40 transition whitespace-nowrap flex items-center gap-1 shadow-sm" title="รีเซ็ตชื่อพนักงานทั้งหมดเป็นค่าเริ่มต้น (คืนค่าเดิม)">
+          <span>🔄</span> <span>รีเซ็ตชื่อเริ่มต้น</span>
+        </button>
+      </div>
+
+      <!-- Scrollable Staff Cards List -->
+      <div id="staff-list-container" class="flex-1 overflow-y-auto p-3 space-y-2">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+
+    <!-- Tab 2: Live Activity Feed Log -->
+    <div id="tab-content-log" class="hidden flex-1 flex flex-col min-h-0">
+      <div class="p-2.5 border-b border-slate-800/70 flex items-center justify-between text-xs text-slate-400">
+        <span>ฟีดกิจกรรมการทำงานสด (เรียลไทม์)</span>
+        <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-cyan-400">อัปเดตอัตโนมัติ</span>
+      </div>
+      <div id="activity-log-container" class="flex-1 overflow-y-auto p-3 space-y-2 font-sans">
+        <!-- Activity items dynamically injected -->
+      </div>
+    </div>
+
+    <!-- Tab 3: Zone & Seating Breakdown -->
+    <div id="tab-content-zone" class="hidden flex-1 overflow-y-auto p-3 space-y-3.5">
+      <!-- Zone VIP -->
+      <div class="p-3 rounded-xl bg-purple-950/20 border border-purple-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-md bg-purple-500"></span>
+            <span class="font-bold text-xs text-purple-300">ZONE VIP (13 โต๊ะ)</span>
+          </div>
+          <span class="text-[11px] text-purple-400 font-semibold font-mono">฿2,500 / โต๊ะ</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-2.5">โต๊ะหน้าเวทีคอนเสิร์ตพร้อมแชมเปญเซ็ต (คลิกเลขโต๊ะเพื่อซูมดู)</div>
+        <div id="zone-vip-tables" class="grid grid-cols-5 gap-1.5">
+          <!-- Tables 6, 7, 54, 53, 52, 51, 50, 49, 48, 46, 47, 45, 44 -->
+        </div>
+      </div>
+
+      <!-- Zone A -->
+      <div class="p-3 rounded-xl bg-orange-950/20 border border-orange-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-md bg-orange-500"></span>
+            <span class="font-bold text-xs text-orange-300">ZONE A (17 โต๊ะ)</span>
+          </div>
+          <span class="text-[11px] text-orange-400 font-semibold font-mono">฿1,500 / โต๊ะ</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-2.5">Pre-sale โต๊ะยืนแถวหน้าคอนเสิร์ต (คลิกเลขโต๊ะเพื่อซูมดู)</div>
+        <div id="zone-a-tables" class="grid grid-cols-6 gap-1.5">
+          <!-- Row 1: 5, 8, 17, 18, 23, 24, 29, 30, 35, 36 | Row 2: 16, 19, 22, 25, 28, 31, 34 -->
+        </div>
+      </div>
+
+      <!-- Zone Sofa -->
+      <div class="p-3 rounded-xl bg-yellow-950/20 border border-yellow-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-md bg-yellow-500"></span>
+            <span class="font-bold text-xs text-yellow-300">ZONE SOFA (5 โต๊ะ)</span>
+          </div>
+          <span class="text-[11px] text-yellow-400 font-semibold font-mono">฿1,200 / โต๊ะ</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-2.5">โซฟานุ่มริมผนังและข้างบาร์ (โต๊ะ 13, 14, 37, 38, 39)</div>
+        <div id="zone-sofa-tables" class="grid grid-cols-5 gap-1.5">
+          <!-- 13, 14, 37, 38, 39 -->
+        </div>
+      </div>
+
+      <!-- Zone B & Bar -->
+      <div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-md bg-emerald-500"></span>
+            <span class="font-bold text-xs text-emerald-300">ZONE B (19 โต๊ะ)</span>
+          </div>
+          <span class="text-[11px] text-emerald-400 font-semibold font-mono">฿800 / โต๊ะ</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-2.5">Walk-in โต๊ะยืนโซนหลัง (คลิกเลขโต๊ะเพื่อซูมดู)</div>
+        <div id="zone-b-tables" class="grid grid-cols-6 gap-1.5">
+          <!-- 1-4, 9-12, 15, 20-21, 26-27, 32-33, 40-43 -->
+        </div>
+      </div>
+
+      <!-- Bar Counter Stools -->
+      <div class="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-md bg-cyan-500"></span>
+            <span class="font-bold text-xs text-cyan-300">บาร์น้ำ BAR STOOLS (6 ที่นั่ง)</span>
+          </div>
+          <span class="text-[11px] text-cyan-400 font-semibold font-mono">฿350 / ที่</span>
+        </div>
+        <div class="text-[10px] text-slate-400 mb-2.5">เก้าอี้บาร์สตูลสีฟ้า B-1 ถึง B-6 หน้าบาร์น้ำ</div>
+        <div id="zone-bar-tables" class="grid grid-cols-6 gap-1.5">
+          <!-- B-1 to B-6 -->
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ======================================================================
+       EDIT STAFF NAME TAG MODAL DIALOG (CRITICAL REQUIREMENT)
+       ====================================================================== -->
+  <div id="edit-staff-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fadeIn">
+    <div class="w-full max-w-md bg-[#0f172a] border border-amber-500/40 rounded-2xl shadow-[0_0_50px_rgba(245,158,11,0.18)] p-5 flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-slate-800/90 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-lg text-amber-300">
+            ✏️
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-white flex items-center gap-2">
+              แก้ไขป้ายชื่อพนักงาน <span class="text-xs font-normal text-amber-400 font-mono">(Edit Staff)</span>
+            </h3>
+            <p class="text-xs text-slate-400">อัปเดตชื่อบนป้าย 3D, แถบ Sidebar และฟีดกิจกรรมทันที</p>
+          </div>
+        </div>
+        <button id="edit-modal-close-icon" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition">✕</button>
+      </div>
+
+      <!-- Current Position & Department Card -->
+      <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span id="edit-staff-role-icon" class="text-xl">🍸</span>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span id="edit-staff-role-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-cyan-600">
+                บาร์น้ำ
+              </span>
+              <span id="edit-staff-dept-name" class="text-xs font-semibold text-slate-200">
+                บาร์น้ำ & เครื่องดื่ม
+              </span>
+            </div>
+            <div id="edit-staff-title-display" class="text-[11px] text-slate-400 mt-0.5">
+              หัวหน้าบาร์เทนเดอร์
+            </div>
+          </div>
+        </div>
+        <span id="edit-staff-id-badge" class="px-2 py-1 rounded bg-slate-800 text-[11px] text-amber-300 font-mono border border-slate-700">
+          JB-BAR-01
+        </span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-amber-300 font-semibold mb-1 flex items-center justify-between">
+            <span>ชื่อพนักงาน / ชื่อบนป้าย 3D <span class="text-red-400">*</span></span>
+            <span class="text-[10px] text-slate-400 font-normal">กด Enter เพื่อบันทึก</span>
+          </label>
+          <input id="edit-staff-name" type="text" placeholder="เช่น บาริสต้า เจ หรือ สมชาย ใจดี" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 rounded-xl px-3.5 py-2.5 text-sm text-white font-medium focus:outline-none transition shadow-inner">
+          <p class="text-[11px] text-slate-400 mt-1">💡 ป้ายลอยเหนือศีรษะตัวละคร 3D และข้อมูลในแดชบอร์ดจะเปลี่ยนตามทันที</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">ชื่อเล่น (Nickname)</label>
+            <input id="edit-staff-nickname" type="text" placeholder="เช่น เจ (Jay)" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-white focus:outline-none transition">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-medium mb-1">รหัสพนักงาน (ID)</label>
+            <input id="edit-staff-id" type="text" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-white font-mono focus:outline-none transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">ตำแหน่ง / หน้าที่รับผิดชอบ</label>
+          <input id="edit-staff-title" type="text" placeholder="เช่น หัวหน้าบาร์เทนเดอร์" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-white focus:outline-none transition">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <span class="text-[11px] text-slate-500">บันทึกลงเครื่องอัตโนมัติ (LocalStorage)</span>
+        <div class="flex items-center gap-2">
+          <button id="edit-modal-cancel" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+            ยกเลิก
+          </button>
+          <button id="edit-modal-save" class="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center gap-1.5 shadow-lg shadow-amber-500/25">
+            <span>💾</span> บันทึกชื่อ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div id="toast-notification" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-slate-900 border border-cyan-500 text-cyan-200 text-xs font-medium shadow-2xl">
+    <span class="text-base">✅</span>
+    <span id="toast-message">บันทึกข้อมูลเรียบร้อยแล้ว</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/characters.js"></script>
+  <script src="js/ai-controller.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
